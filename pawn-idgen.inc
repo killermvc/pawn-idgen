@@ -40,13 +40,13 @@ static stock Idgen_AppendReleased(Idgen:generator, value) {
 
 #include <YSI\y_hooks>
 hook OnScriptInit() {
-    releasedIds = Vec_CreateVector(10);
-    maxCapacity = Vec_CreateVector(10);
-    assignedCount = Vec_CreateVector(10);
+    releasedIds = Vec_New(10);
+    maxCapacity = Vec_New(10);
+    assignedCount = Vec_New(10);
     IdGen_SetAssignedCount(internalGenerator, 1);
     
     Vec_SetValue(maxCapacity, _:internalGenerator, UNLIMITED_CAPACITY);
-    IdGen_SetReleasedIds(internalGenerator, Vec_CreateVector());
+    IdGen_SetReleasedIds(internalGenerator, Vec_New());
 }
 
 hook OnScriptExit() {
@@ -124,7 +124,7 @@ stock Idgen:Idgen_New(capacity) {
         return INVALID_IDGEN;
     }
     Vec_SetValue(maxCapacity, _:id, capacity);
-    IdGen_SetReleasedIds(id, Vec_CreateVector());
+    IdGen_SetReleasedIds(id, Vec_New());
     return id;
 }
 
