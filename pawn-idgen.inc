@@ -41,8 +41,17 @@ static stock Idgen_AppendReleased(Idgen:generator, value) {
 #include <YSI\y_hooks>
 hook OnScriptInit() {
     releasedIds = Vec_New(10);
+    if(releasedIds == INVALID_VECTOR_ID) {
+        P:F("PAWN-IDGEN couldn't create vector for released ids");
+    }
     maxCapacity = Vec_New(10);
+    if(maxCapacity == INVALID_VECTOR_ID) {
+        P:F("AWN-IDGEN couldn't create vector for maxCapacity");
+    }
     assignedCount = Vec_New(10);
+    if(assignedCount == INVALID_VECTOR_ID) {
+        P:F("AWN-IDGEN couldn't create vector for assigned count");
+    }
     IdGen_SetAssignedCount(internalGenerator, 1);
     
     Vec_SetValue(maxCapacity, _:internalGenerator, UNLIMITED_CAPACITY);
@@ -73,11 +82,9 @@ stock Idgen_GetReleasedCount(Idgen:generator) {
 #define INVALID_IDGEN_ID   (-1)
 
 stock Idgen_NewID(Idgen:generator) {
-    if(generator == internalGenerator) {
-
-    }
     new assignCount = IdGen_GetAssignedCount(generator);
     new capacity = Vec_GetValue(maxCapacity, _:generator);
+    
     if(assignCount >= capacity && capacity != UNLIMITED_CAPACITY) {
         return INVALID_IDGEN_ID;
     }
