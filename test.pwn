@@ -1,62 +1,89 @@
+#define RUN_TESTS
 #include <a_samp>
-
 #include "pawn-idgen.inc"
+#include <YSI_Core\y_testing>
 
-main() {
+Test:New() {
     new Idgen:generator = Idgen_New(50);
-    if(!Idgen_IsValidID(Idgen:0, _:generator)) {
-        print("Idgen_New failed");
-    } else {
-        print("Idgen_New passed");
-    }
+    ASSERT(Idgen_IsValidGenerator(generator));
+}
 
+Test:NewIds() {
+    new Idgen:generator = Idgen_New(10);
+    
     new ids[3];
-
     ids[0] = Idgen_NewID(generator);
     ids[1] = Idgen_NewID(generator);
     ids[2] = Idgen_NewID(generator);
 
-    if(ids[0] != 0 || ids[1] != 1 || ids[2] != 2) {
-        print("Idgen_NewID failed");
-        printf("%d,%d,%d", ids[0], ids[1], ids[2]);
-    } else {
-        print("Idgen_NewID passed");
-    }
+    ASSERT(ids[0] == 0);
+    ASSERT(ids[1] == 1);
+    ASSERT(ids[2] == 2);
+}
 
-    Idgen_ReleaseId(generator, ids[1]);
-    if(Idgen_IsValidID(generator, ids[1])) {
-        print("Idgen_ReleaseId failed");
-    } else {
-        print("Idgen_ReleaseId passed");
-    }
+Test:ReleaseIds() {
+    new Idgen:generator = Idgen_New(10);
+    
+    new ids[3];
+    ids[0] = Idgen_NewID(generator);
+    ids[1] = Idgen_NewID(generator);
+    ids[2] = Idgen_NewID(generator);
 
     Idgen_ReleaseId(generator, ids[0]);
+    Idgen_ReleaseId(generator, ids[1]);
+    Idgen_ReleaseId(generator, ids[2]);
 
-    new id[2];
-    id[1] = Idgen_NewID(generator);
-    id[0] = Idgen_NewID(generator);
+    ASSERT(!Idgen_IsValidID(generator, ids[0]));
+    ASSERT(!Idgen_IsValidID(generator, ids[1]));
+    ASSERT(!Idgen_IsValidID(generator, ids[2]));
+}
 
-    if(id[0] != ids[0] || id[1] != ids[1]) {
-        print("Idgen_NewID with released ids failed");
-    } else {
-        print("Idgen_NewID with released ids passed");
-    }
+Test:NewIdAfterRelease() {
+    new Idgen:generator = Idgen_New(10);
+    
+    new ids[3];
+    ids[0] = Idgen_NewID(generator);
+    ids[1] = Idgen_NewID(generator);
+    ids[2] = Idgen_NewID(generator);
 
-    new Idgen:generator2 = Idgen_New(UNLIMITED_CAPACITY);
+    Idgen_ReleaseId(generator, ids[2]);
+    Idgen_ReleaseId(generator, ids[1]);
+    Idgen_ReleaseId(generator, ids[0]);
 
-    new id2 = Idgen_NewID(generator2);
-    if(id2 != 0) {
-        print("Idgen_NewID with two different generators failed");
-    } else {
-        print("Idgen_NewID with two different generators passed");
-    }
+    ASSERT(Idgen_NewID(generator) == ids[0]);
+    ASSERT(Idgen_NewID(generator) == ids[1]);
+    ASSERT(Idgen_NewID(generator) == ids[2]);
+}
 
-    Idgen_Delete(generator2);
+Test:TwoGenerators() {
+    new Idgen:generator1 = Idgen_New(10);
+    new Idgen:generator2 = Idgen_New(10);
 
-    if(Idgen_IsValidGenerator(generator2)) {
-        print("Idgen_Delete failed");
-    } else {
-        print("Idgen_Delete passed");
-    }
+    new ids1[3], ids2[3];
 
+    ids1[0] = Idgen_NewID(generator1);
+    ids1[1] = Idgen_NewID(generator1);
+    ids1[2] = Idgen_NewID(generator1);
+
+    ids2[0] = Idgen_NewID(generator2);
+    ids2[1] = Idgen_NewID(generator2);
+    ids2[2] = Idgen_NewID(generator2);
+
+    ASSERT(ids1[0] == 0 && ids1[1] == 1 && ids1[2] == 2);
+    ASSERT(ids2[0] == 0 && ids2[1] == 1 && ids2[2] == 2);
+}
+
+Test:Delete() {
+    new Idgen:generator = Idgen_New(10);
+
+    Idgen_Delete(generator);
+    ASSERT(!Idgen_IsValidGenerator(generator));
+}
+
+Test:MaxCapacity() {
+    new Idgen:generator = Idgen_New(2);
+
+    ASSERT(Idgen_NewID(generator) != INVALID_IDGEN_ID);
+    ASSERT(Idgen_NewID(generator) != INVALID_IDGEN_ID);
+    ASSERT(Idgen_NewID(generator) == INVALID_IDGEN_ID);
 }

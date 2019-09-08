@@ -38,7 +38,7 @@ static stock Idgen_AppendReleased(Idgen:generator, value) {
 
 #define UNLIMITED_CAPACITY  (-1)
 
-#include <YSI\y_hooks>
+#include <YSI_Coding\y_hooks>
 hook OnScriptInit() {
     releasedIds = Vec_New(10);
     if(releasedIds == INVALID_VECTOR_ID) {
@@ -92,7 +92,7 @@ stock Idgen_NewID(Idgen:generator) {
     new relCount = Vec_GetLength(released);
     if(relCount > 0) {
         relCount--;
-        new id = Vec_GetValue(released, relcount);
+        new id = Vec_GetValue(released, relCount);
         Vec_Remove(released, relCount);
         return id;
     }
@@ -100,7 +100,7 @@ stock Idgen_NewID(Idgen:generator) {
     return assignCount;
 }
 
-stock Idgen_IsValidID(Idgen:generator, id) {
+stock bool:Idgen_IsValidID(Idgen:generator, id) {
     if(id >= IdGen_GetAssignedCount(generator)) {
         return false;
     }
@@ -112,7 +112,7 @@ stock Idgen_IsValidID(Idgen:generator, id) {
     return true;
 }
 
-stock Idgen_IsValidGenerator(Idgen:generator) {
+stock bool:Idgen_IsValidGenerator(Idgen:generator) {
     return Idgen_IsValidID(internalGenerator, _:generator);
 }
 
