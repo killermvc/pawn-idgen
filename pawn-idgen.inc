@@ -92,8 +92,9 @@ stock Idgen_NewID(Idgen:generator) {
     new relCount = Vec_GetLength(released);
     if(relCount > 0) {
         relCount--;
+        new id = Vec_GetValue(released, relcount);
         Vec_Remove(released, relCount);
-        return relCount;
+        return id;
     }
     Vec_SetValue(assignedCount, _:generator, assignCount+1);
     return assignCount;
