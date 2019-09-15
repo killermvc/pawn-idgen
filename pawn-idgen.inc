@@ -10,22 +10,17 @@
     internal
 */
 
-static Vec:releasedIds;
-static Vec:assignedCount;
-static Vec:maxCapacity;
+static const ASSIGN_COUNT_INDEX = 0;
+static const MAX_CAPACITY_INDEX = 1;
+static const RELEASED_INDEX     = 2;
 
-static Idgen:internalGenerator = Idgen:0;
 
 static stock IdGen_SetAssignedCount(Idgen:generator, value) {
-    Vec_SetValue(assignedCount, _:generator, value);
-}
-
-static stock IdGen_SetReleasedIds(Idgen:generator, Vec:value) {
-    Vec_SetValue(releasedIds, _:generator, _:value);
+    Vec_SetValue(Vec:generator, ASSIGN_COUNT_INDEX, value);
 }
 
 static stock Vec:IdGen_GetReleasedIds(Idgen:generator) {
-    return Vec:Vec_GetValue(releasedIds, _:generator);
+    return Vec_GetValueVec(Vec:generator, RELEASED_INDEX);
 }
 
 static stock Idgen_GetReleasedByIndex(Idgen:generator, index) {
@@ -38,52 +33,27 @@ static stock Idgen_AppendReleased(Idgen:generator, value) {
 
 #define UNLIMITED_CAPACITY  (-1)
 
-#include <YSI_Coding\y_hooks>
-hook OnScriptInit() {
-    releasedIds = Vec_New(10);
-    if(releasedIds == INVALID_VECTOR_ID) {
-        P:F("PAWN-IDGEN couldn't create vector for released ids");
-    }
-    maxCapacity = Vec_New(10);
-    if(maxCapacity == INVALID_VECTOR_ID) {
-        P:F("AWN-IDGEN couldn't create vector for maxCapacity");
-    }
-    assignedCount = Vec_New(10);
-    if(assignedCount == INVALID_VECTOR_ID) {
-        P:F("AWN-IDGEN couldn't create vector for assigned count");
-    }
-    IdGen_SetAssignedCount(internalGenerator, 1);
-    
-    Vec_SetValue(maxCapacity, _:internalGenerator, UNLIMITED_CAPACITY);
-    IdGen_SetReleasedIds(internalGenerator, Vec_New());
-}
-
-hook OnScriptExit() {
-    Vec_Delete(maxCapacity);
-    Vec_Delete(assignedCount);
-    for(new i = 0; i < Vec_GetLength(releasedIds); i++) {
-        Vec_Delete(Vec:Vec_GetValue(releasedIds, i));
-    }
-    Vec_Delete(releasedIds);
-}
-
 /*
     API
 */
 
 stock IdGen_GetAssignedCount(Idgen:generator) {
-    return Vec_GetValue(assignedCount, _:generator);
+    return Vec_GetValue(Vec:generator, ASSIGN_COUNT_INDEX);
 }
 
 stock Idgen_GetReleasedCount(Idgen:generator) {
     return Vec_GetLength(IdGen_GetReleasedIds(generator));
 }
 
+stock Idgen_GetCapacity(Idgen:generator) {
+    return Vec_GetValue(Vec:generator, MAX_CAPACITY_INDEX);
+}
+
 #define INVALID_IDGEN_ID   (-1)
 
 stock Idgen_NewID(Idgen:generator) {
     new assignCount = IdGen_GetAssignedCount(generator);
-    new capacity = Vec_GetValue(maxCapacity, _:generator);
+    new capacity = Idgen_GetCapacity(generator);
     
     if(assignCount >= capacity && capacity != UNLIMITED_CAPACITY) {
         return INVALID_IDGEN_ID;
@@ -96,15 +66,19 @@ stock Idgen_NewID(Idgen:generator) {
         Vec_Remove(released, relCount);
         return id;
     }
-    Vec_SetValue(assignedCount, _:generator, assignCount+1);
+    IdGen_SetAssignedCount(generator, assignCount+1);
     return assignCount;
 }
 
 stock bool:Idgen_IsValidID(Idgen:generator, id) {
+    printf("id: %d; assign: %d", id, IdGen_GetAssignedCount(generator));
     if(id >= IdGen_GetAssignedCount(generator)) {
+        print("id >= assign");
         return false;
     }
-    for(new i =0; i < Idgen_GetReleasedCount(generator); i++) {
+    printf("releasedCount: %d", Idgen_GetReleasedCount(generator));
+    for(new i = 0; i < Idgen_GetReleasedCount(generator); i++) {
+        printf("released[%d] = %d", i, Idgen_GetReleasedByIndex(generator, i));
         if(Idgen_GetReleasedByIndex(generator, i) == id) {
             return false;
         }
@@ -113,7 +87,10 @@ stock bool:Idgen_IsValidID(Idgen:generator, id) {
 }
 
 stock bool:Idgen_IsValidGenerator(Idgen:generator) {
-    return Idgen_IsValidID(internalGenerator, _:generator);
+    if(!IsValidVec(Vec:generator) || !IsValidVec(IdGen_GetReleasedIds(generator))) {
+        return false;
+    }
+    return true;
 }
 
 stock Idgen_ReleaseId(Idgen:generator, id) {
@@ -127,20 +104,20 @@ stock Idgen_ReleaseId(Idgen:generator, id) {
 #define INVALID_IDGEN (Idgen:-1)
 
 stock Idgen:Idgen_New(capacity) {
-    new Idgen:id = Idgen:Idgen_NewID(internalGenerator);
-    if(_:id == INVALID_IDGEN_ID) {
+    new Vec:generator = Vec_New(capacity);
+
+    if(generator == INVALID_VECTOR_ID) {
         return INVALID_IDGEN;
     }
-    Vec_SetValue(maxCapacity, _:id, capacity);
-    IdGen_SetReleasedIds(id, Vec_New());
-    return id;
+    
+    Vec_SetValue(generator, MAX_CAPACITY_INDEX, capacity);
+    Vec_SetValue(generator, ASSIGN_COUNT_INDEX, 0);
+    Vec_SetValueVec(generator, RELEASED_INDEX, Vec_New(5));
+    return Idgen:generator;
 }
 
 
 stock Idgen_Delete(Idgen:generator) {
-    Vec_Delete(Vec:Vec_GetValue(releasedIds, _:generator));
-    //edit pawn-vector to allow to set beyond length
-    Vec_SetValue(maxCapacity, _:generator, 0);
-    Vec_SetValue(assignedCount, _:generator, 0);
-    return Idgen_ReleaseId(internalGenerator, _:generator);
+    Vec_Delete(IdGen_GetReleasedIds(generator));
+    Vec_Delete(Vec:generator);    
 }
