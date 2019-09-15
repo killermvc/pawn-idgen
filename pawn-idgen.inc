@@ -71,14 +71,10 @@ stock Idgen_NewID(Idgen:generator) {
 }
 
 stock bool:Idgen_IsValidID(Idgen:generator, id) {
-    printf("id: %d; assign: %d", id, IdGen_GetAssignedCount(generator));
     if(id >= IdGen_GetAssignedCount(generator)) {
-        print("id >= assign");
         return false;
     }
-    printf("releasedCount: %d", Idgen_GetReleasedCount(generator));
     for(new i = 0; i < Idgen_GetReleasedCount(generator); i++) {
-        printf("released[%d] = %d", i, Idgen_GetReleasedByIndex(generator, i));
         if(Idgen_GetReleasedByIndex(generator, i) == id) {
             return false;
         }
