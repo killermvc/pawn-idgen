@@ -54,10 +54,7 @@ stock Idgen_GetCapacity(Idgen:generator) {
 stock Idgen_NewID(Idgen:generator) {
     new assignCount = IdGen_GetAssignedCount(generator);
     new capacity = Idgen_GetCapacity(generator);
-    
-    if(assignCount >= capacity && capacity != UNLIMITED_CAPACITY) {
-        return INVALID_IDGEN_ID;
-    }
+
     new Vec:released = IdGen_GetReleasedIds(generator);
     new relCount = Vec_GetLength(released);
     if(relCount > 0) {
@@ -66,6 +63,11 @@ stock Idgen_NewID(Idgen:generator) {
         Vec_Remove(released, relCount);
         return id;
     }
+
+    if(assignCount >= capacity && capacity != UNLIMITED_CAPACITY) {
+        return INVALID_IDGEN_ID;
+    }
+
     IdGen_SetAssignedCount(generator, assignCount+1);
     return assignCount;
 }
@@ -105,7 +107,7 @@ stock Idgen:Idgen_New(capacity) {
     if(generator == INVALID_VECTOR_ID) {
         return INVALID_IDGEN;
     }
-    
+
     Vec_SetValue(generator, MAX_CAPACITY_INDEX, capacity);
     Vec_SetValue(generator, ASSIGN_COUNT_INDEX, 0);
     Vec_SetValueVec(generator, RELEASED_INDEX, Vec_New(5));
@@ -115,5 +117,5 @@ stock Idgen:Idgen_New(capacity) {
 
 stock Idgen_Delete(Idgen:generator) {
     Vec_Delete(IdGen_GetReleasedIds(generator));
-    Vec_Delete(Vec:generator);    
+    Vec_Delete(Vec:generator);
 }
