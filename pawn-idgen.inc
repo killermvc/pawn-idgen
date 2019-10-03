@@ -60,7 +60,7 @@ stock Idgen_NewID(Idgen:generator) {
     if(relCount > 0) {
         relCount--;
         new id = Vec_GetValue(released, relCount);
-        Vec_Remove(released, relCount);
+        Vec_RemoveAt(released, relCount);
         return id;
     }
 
