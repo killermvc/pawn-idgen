@@ -1,6 +1,6 @@
 #define RUN_TESTS
 #include <a_samp>
-#include "pawn-idgen.inc"
+#include "idgen.inc"
 #include <YSI_Core\y_testing>
 
 Test:New() {
@@ -10,7 +10,6 @@ Test:New() {
 
 Test:NewIds() {
     new Idgen:generator = Idgen_New(10);
-    
     new ids[3];
     ids[0] = Idgen_NewID(generator);
     ids[1] = Idgen_NewID(generator);
@@ -23,7 +22,6 @@ Test:NewIds() {
 
 Test:ReleaseIds() {
     new Idgen:generator = Idgen_New(10);
-    
     new ids[3];
     ids[0] = Idgen_NewID(generator);
     ids[1] = Idgen_NewID(generator);
@@ -40,7 +38,6 @@ Test:ReleaseIds() {
 
 Test:NewIdAfterRelease() {
     new Idgen:generator = Idgen_New(10);
-    
     new ids[3];
     ids[0] = Idgen_NewID(generator);
     ids[1] = Idgen_NewID(generator);

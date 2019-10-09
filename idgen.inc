@@ -1,10 +1,14 @@
+#if defined _inc_idgen
+    #undef _inc_idgen
+#endif
+
 #if defined pawn_idgen_included
     #endinput
 #endif
 
 #define pawn_idgen_included
 
-#include <pawn-vector>
+#include <vector>
 
 /*
     internal

@@ -37,7 +37,7 @@ sampctl package install Killermvc/pawn-idgen
 Include in your code and begin using the library:
 
 ```pawn
-#include <pawn-idgen>
+#include <idgen>
 ```
 
 ## Usage
