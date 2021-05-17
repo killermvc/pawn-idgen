@@ -5,7 +5,8 @@
 
 Test:New() {
     new Idgen:generator = Idgen_New(50);
-    ASSERT(Idgen_IsValidGenerator(generator));
+    ASSERT_EQ(Vec_Get(Vec:generator, 0), 0);
+	ASSERT_EQ(Vec_Get(Vec:generator, 1), 50);
 }
 
 Test:NewIds() {
@@ -15,9 +16,9 @@ Test:NewIds() {
     ids[1] = Idgen_NewID(generator);
     ids[2] = Idgen_NewID(generator);
 
-    ASSERT(ids[0] == 0);
-    ASSERT(ids[1] == 1);
-    ASSERT(ids[2] == 2);
+    ASSERT_EQ(ids[0], 0);
+    ASSERT_EQ(ids[1], 1);
+    ASSERT_EQ(ids[2], 2);
 }
 
 Test:ReleaseIds() {
@@ -31,9 +32,9 @@ Test:ReleaseIds() {
     Idgen_ReleaseId(generator, ids[1]);
     Idgen_ReleaseId(generator, ids[2]);
 
-    ASSERT(!Idgen_IsValidID(generator, ids[0]));
-    ASSERT(!Idgen_IsValidID(generator, ids[1]));
-    ASSERT(!Idgen_IsValidID(generator, ids[2]));
+    ASSERT_FALSE(Idgen_IsValidID(generator, ids[0]));
+    ASSERT_FALSE(Idgen_IsValidID(generator, ids[1]));
+    ASSERT_FALSE(Idgen_IsValidID(generator, ids[2]));
 }
 
 Test:NewIdAfterRelease() {
@@ -47,9 +48,9 @@ Test:NewIdAfterRelease() {
     Idgen_ReleaseId(generator, ids[1]);
     Idgen_ReleaseId(generator, ids[0]);
 
-    ASSERT(Idgen_NewID(generator) == ids[0]);
-    ASSERT(Idgen_NewID(generator) == ids[1]);
-    ASSERT(Idgen_NewID(generator) == ids[2]);
+    ASSERT_EQ(Idgen_NewID(generator), ids[0]);
+    ASSERT_EQ(Idgen_NewID(generator), ids[1]);
+    ASSERT_EQ(Idgen_NewID(generator), ids[2]);
 }
 
 Test:TwoGenerators() {
@@ -70,17 +71,10 @@ Test:TwoGenerators() {
     ASSERT(ids2[0] == 0 && ids2[1] == 1 && ids2[2] == 2);
 }
 
-Test:Delete() {
-    new Idgen:generator = Idgen_New(10);
-
-    Idgen_Delete(generator);
-    ASSERT(!Idgen_IsValidGenerator(generator));
-}
-
 Test:MaxCapacity() {
     new Idgen:generator = Idgen_New(2);
 
-    ASSERT(Idgen_NewID(generator) != INVALID_IDGEN_ID);
-    ASSERT(Idgen_NewID(generator) != INVALID_IDGEN_ID);
-    ASSERT(Idgen_NewID(generator) == INVALID_IDGEN_ID);
+    ASSERT_NE(Idgen_NewID(generator), INVALID_IDGEN_ID);
+    ASSERT_NE(Idgen_NewID(generator), INVALID_IDGEN_ID);
+    ASSERT_EQ(Idgen_NewID(generator), INVALID_IDGEN_ID);
 }

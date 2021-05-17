@@ -20,19 +20,11 @@ static const RELEASED_INDEX     = 2;
 
 
 static stock IdGen_SetAssignedCount(Idgen:generator, value) {
-    Vec_SetValue(Vec:generator, ASSIGN_COUNT_INDEX, value);
-}
-
-static stock Vec:IdGen_GetReleasedIds(Idgen:generator) {
-    return Vec_GetValueVec(Vec:generator, RELEASED_INDEX);
+    Vec_Set(Vec:generator, ASSIGN_COUNT_INDEX, value);
 }
 
 static stock Idgen_GetReleasedByIndex(Idgen:generator, index) {
-    return Vec_GetValue(IdGen_GetReleasedIds(generator), index);
-}
-
-static stock Idgen_AppendReleased(Idgen:generator, value) {
-    Vec_Append(IdGen_GetReleasedIds(generator), value);
+    return Vec_Get(Vec:generator, index + 2);
 }
 
 #define UNLIMITED_CAPACITY  (-1)
@@ -42,15 +34,15 @@ static stock Idgen_AppendReleased(Idgen:generator, value) {
 */
 
 stock IdGen_GetAssignedCount(Idgen:generator) {
-    return Vec_GetValue(Vec:generator, ASSIGN_COUNT_INDEX);
+    return Vec_Get(Vec:generator, ASSIGN_COUNT_INDEX);
 }
 
 stock Idgen_GetReleasedCount(Idgen:generator) {
-    return Vec_GetLength(IdGen_GetReleasedIds(generator));
+    return Vec_Len(Vec:generator) - RELEASED_INDEX;
 }
 
 stock Idgen_GetCapacity(Idgen:generator) {
-    return Vec_GetValue(Vec:generator, MAX_CAPACITY_INDEX);
+    return Vec_Get(Vec:generator, MAX_CAPACITY_INDEX);
 }
 
 #define INVALID_IDGEN_ID   (-1)
@@ -59,12 +51,11 @@ stock Idgen_NewID(Idgen:generator) {
     new assignCount = IdGen_GetAssignedCount(generator);
     new capacity = Idgen_GetCapacity(generator);
 
-    new Vec:released = IdGen_GetReleasedIds(generator);
-    new relCount = Vec_GetLength(released);
-    if(relCount > 0) {
-        relCount--;
-        new id = Vec_GetValue(released, relCount);
-        Vec_RemoveAt(released, relCount);
+    new relCount = Vec_Len(Vec:generator);
+    if(relCount - RELEASED_INDEX > 0) {
+		--relCount;
+        new id = Vec_Get(Vec:generator, relCount);
+        Vec_RemoveAt(Vec:generator, relCount);
         return id;
     }
 
@@ -88,18 +79,8 @@ stock bool:Idgen_IsValidID(Idgen:generator, id) {
     return true;
 }
 
-stock bool:Idgen_IsValidGenerator(Idgen:generator) {
-    if(!IsValidVec(Vec:generator) || !IsValidVec(IdGen_GetReleasedIds(generator))) {
-        return false;
-    }
-    return true;
-}
-
 stock Idgen_ReleaseId(Idgen:generator, id) {
-    if(!Idgen_IsValidID(generator, id)) {
-        return 0;
-    }
-    Idgen_AppendReleased(generator, id);
+    Vec_Append(Vec:generator, id);
     return 1;
 }
 
@@ -108,18 +89,16 @@ stock Idgen_ReleaseId(Idgen:generator, id) {
 stock Idgen:Idgen_New(capacity) {
     new Vec:generator = Vec_New(capacity);
 
-    if(generator == INVALID_VECTOR_ID) {
+    if(generator == INVALID_VECTOR) {
         return INVALID_IDGEN;
     }
 
-    Vec_SetValue(generator, MAX_CAPACITY_INDEX, capacity);
-    Vec_SetValue(generator, ASSIGN_COUNT_INDEX, 0);
-    Vec_SetValueVec(generator, RELEASED_INDEX, Vec_New(5));
+    Vec_Set(generator, MAX_CAPACITY_INDEX, capacity);
+    Vec_Set(generator, ASSIGN_COUNT_INDEX, 0);
     return Idgen:generator;
 }
 
 
 stock Idgen_Delete(Idgen:generator) {
-    Vec_Delete(IdGen_GetReleasedIds(generator));
     Vec_Delete(Vec:generator);
 }

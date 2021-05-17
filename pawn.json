@@ -5,12 +5,12 @@
 	"output": "test.amx",
 	"dependencies": [
 		"sampctl/samp-stdlib",
-		"killermvc/pawn-vector"
+		"killermvc/pawn-vector:3.1.1"
 	],
 	"builds": [
 		{
 			"name": "dev",
-			"version": "3.10.8"
+			"version": "3.10.10"
 		}
 	],
 	"runtime": {
