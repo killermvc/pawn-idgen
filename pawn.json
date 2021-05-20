@@ -5,7 +5,7 @@
 	"output": "test.amx",
 	"dependencies": [
 		"sampctl/samp-stdlib",
-		"killermvc/pawn-vector:3.1.1"
+		"killermvc/pawn-vector:3.1.2"
 	],
 	"builds": [
 		{

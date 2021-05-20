@@ -24,7 +24,7 @@ static stock IdGen_SetAssignedCount(Idgen:generator, value) {
 }
 
 static stock Idgen_GetReleasedByIndex(Idgen:generator, index) {
-    return Vec_Get(Vec:generator, index + 2);
+    return Vec_Get(Vec:generator, index + RELEASED_INDEX);
 }
 
 #define UNLIMITED_CAPACITY  (-1)
@@ -84,9 +84,16 @@ stock Idgen_ReleaseId(Idgen:generator, id) {
     return 1;
 }
 
+stock Idgen_Clear(Idgen:generator)
+{
+	new maxCapacity = Idgen_GetCapacity(generator);
+	Vec_Clear(Vec:generator);
+	Vec_Set(Vec:generator, MAX_CAPACITY_INDEX, maxCapacity);
+}
+
 #define INVALID_IDGEN (Idgen:-1)
 
-stock Idgen:Idgen_New(capacity) {
+stock Idgen:Idgen_New(capacity = UNLIMITED_CAPACITY) {
     new Vec:generator = Vec_New(capacity);
 
     if(generator == INVALID_VECTOR) {

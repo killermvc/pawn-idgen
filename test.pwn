@@ -78,3 +78,17 @@ Test:MaxCapacity() {
     ASSERT_NE(Idgen_NewID(generator), INVALID_IDGEN_ID);
     ASSERT_EQ(Idgen_NewID(generator), INVALID_IDGEN_ID);
 }
+
+Test:Clear()
+{
+	new Idgen:generator = Idgen_New(10);
+	new id1 = Idgen_NewID(generator);
+	new id2 = Idgen_NewID(generator);
+
+	Idgen_Clear(generator);
+
+	ASSERT_EQ(Idgen_GetReleasedCount(generator), 0);
+	ASSERT_FALSE(Idgen_IsValidID(generator, id1));
+	ASSERT_FALSE(Idgen_IsValidID(generator, id2));
+	ASSERT_EQ(Idgen_GetCapacity(generator), 10);
+}
