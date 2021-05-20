@@ -105,7 +105,6 @@ stock Idgen:Idgen_New(capacity = UNLIMITED_CAPACITY) {
     return Idgen:generator;
 }
 
-
 stock Idgen_Delete(Idgen:generator) {
     Vec_Delete(Vec:generator);
 }
