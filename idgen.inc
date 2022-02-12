@@ -18,7 +18,6 @@ static const ASSIGN_COUNT_INDEX = 0;
 static const MAX_CAPACITY_INDEX = 1;
 static const RELEASED_INDEX     = 2;
 
-
 static stock IdGen_SetAssignedCount(Idgen:generator, value) {
     Vec_Set(Vec:generator, ASSIGN_COUNT_INDEX, value);
 }
@@ -80,7 +79,15 @@ stock bool:Idgen_IsValidID(Idgen:generator, id) {
 }
 
 stock Idgen_ReleaseId(Idgen:generator, id) {
-    Vec_Append(Vec:generator, id);
+    new assigned = IdGen_GetAssignedCount(generator) - 1;
+    if(id == assigned)
+    {
+        IdGen_SetAssignedCount(generator, assigned);
+    }
+    else
+    {
+        Vec_Append(Vec:generator, id);
+    }
     return 1;
 }
 
@@ -89,6 +96,39 @@ stock Idgen_Clear(Idgen:generator)
 	new maxCapacity = Idgen_GetCapacity(generator);
 	Vec_Clear(Vec:generator);
 	Vec_Set(Vec:generator, MAX_CAPACITY_INDEX, maxCapacity);
+}
+
+#define Iterator@IdGen iterstart(-1)
+
+stock Iter_Func@IdGen(cur, Idgen:generator)
+{
+    if(IDgen_is)
+	while(++cur != IdGen_GetAssignedCount(generator))
+    {
+        if(Idgen_IsValidID(generator, id))
+        {
+            return cur;
+        }
+    }
+    return -1;
+}
+
+stock Idgen_ReduceReleasedStack(Idgen:generator)
+{
+    Vec_Sort(Vec:generator, RELEASED_INDEX);
+    new
+        count = 0,
+        i = Vec_Len(Vec:generator) - 1,
+        last = IdGen_GetAssignedCount(generator);
+
+    while(Vec_Get(Vec:generator, i) == last - 1)
+    {
+        Vec_RemoveAt(Vec:generator, i--);
+        count++;
+        last--;
+    }
+    IdGen_SetAssignedCount(generator, last);
+    return count;
 }
 
 #define INVALID_IDGEN (Idgen:-1)

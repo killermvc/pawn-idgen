@@ -1,4 +1,5 @@
 #define RUN_TESTS
+#define YSI_YES_HEAP_MALLOC
 #include <a_samp>
 #include "idgen.inc"
 #include <YSI_Core\y_testing>
@@ -91,4 +92,39 @@ Test:Clear()
 	ASSERT_FALSE(Idgen_IsValidID(generator, id1));
 	ASSERT_FALSE(Idgen_IsValidID(generator, id2));
 	ASSERT_EQ(Idgen_GetCapacity(generator), 10);
+}
+
+Test:ReduceStack()
+{
+    new Idgen:generator = Idgen_New(10);
+    Idgen_NewID(generator);
+    Idgen_NewID(generator);
+    Idgen_NewID(generator);
+    Idgen_NewID(generator);
+    Idgen_ReleaseId(generator, 2);
+    Idgen_ReleaseId(generator, 1);
+    Idgen_ReleaseId(generator, 3);
+
+    new count = Idgen_ReduceReleasedStack(generator);
+
+    ASSERT_EQ(count, 2);
+    ASSERT_EQ(Idgen_GetReleasedCount(generator), 0);
+    ASSERT_EQ(IdGen_GetAssignedCount(generator), 1);
+}
+
+Test:ReduceStack_Fail()
+{
+    new Idgen:generator = Idgen_New(10);
+    Idgen_NewID(generator);
+    Idgen_NewID(generator);
+    Idgen_NewID(generator);
+    Idgen_NewID(generator);
+    Idgen_ReleaseId(generator, 2);
+    Idgen_ReleaseId(generator, 1);
+
+    new count = Idgen_ReduceReleasedStack(generator);
+
+    ASSERT_EQ(count, 0);
+    ASSERT_EQ(Idgen_GetReleasedCount(generator), 2);
+    ASSERT_EQ(IdGen_GetAssignedCount(generator), 4);
 }
