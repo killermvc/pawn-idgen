@@ -102,10 +102,9 @@ stock Idgen_Clear(Idgen:generator)
 
 stock Iter_Func@IdGen(cur, Idgen:generator)
 {
-    if(IDgen_is)
 	while(++cur != IdGen_GetAssignedCount(generator))
     {
-        if(Idgen_IsValidID(generator, id))
+        if(Idgen_IsValidID(generator, cur))
         {
             return cur;
         }

@@ -128,3 +128,37 @@ Test:ReduceStack_Fail()
     ASSERT_EQ(Idgen_GetReleasedCount(generator), 2);
     ASSERT_EQ(IdGen_GetAssignedCount(generator), 4);
 }
+
+Test:Foreach()
+{
+    new Idgen:generator = Idgen_New(10);
+    Idgen_NewID(generator);
+    Idgen_NewID(generator);
+    Idgen_NewID(generator);
+
+    new i = 0;
+
+    foreach(new id : IdGen(generator))
+    {
+        ASSERT_EQ(id, i++);
+    }
+}
+
+Test:Foreach_Release()
+{
+    new Idgen:generator = Idgen_New(10);
+    Idgen_NewID(generator);
+    Idgen_NewID(generator);
+    Idgen_NewID(generator);
+    Idgen_NewID(generator);
+
+    Idgen_ReleaseId(generator, 2);
+
+    new expected[] = {0, 3}, i = 0;
+
+    foreach(new id : IdGen(generator))
+    {
+        ASSERT_NE(id, 2);
+        ASSERT_EQ(id, expected[i++]);
+    }
+}
